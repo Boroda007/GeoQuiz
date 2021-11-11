@@ -31,7 +31,9 @@ class CheatActivity : AppCompatActivity() {
         showAnswerButton = findViewById(R.id.show_answer_button)
 
         showAnswerButton.setOnClickListener {
-            showAnswer(answerIsTrue, true)
+            if (!answerIsShown) {
+                showAnswer(answerIsTrue, true)
+            }
         }
 
         showAnswer(answerIsTrue, currentIsShown)
