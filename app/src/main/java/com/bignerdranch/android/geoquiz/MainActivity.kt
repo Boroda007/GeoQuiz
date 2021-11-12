@@ -129,36 +129,28 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateButtons() {
-        val result = (quizViewModel.answerToCurrentQuestion == Answer.UNKNOWN)
+        val result = (quizViewModel.userAnswer == Answer.UNKNOWN)
         trueButton.isEnabled = result
         falseButton.isEnabled = result
+        cheatButton.isEnabled = result
     }
 
     private fun checkAnswer(userAnswer: Boolean) {
         val correctAnswer = quizViewModel.currentQuestionAnswer
-
-//        val messageResId = if (userAnswer == correctAnswer) {
-//            quizViewModel.answerToCurrentQuestion = Answer.CORRECT
-//            R.string.correct_toast
-//        } else {
-//            quizViewModel.answerToCurrentQuestion = Answer.INCORRECT
-//            R.string.incorrect_toast
-//        }
-//
-//        if (quizViewModel.questionsIsOver()) {
-//            val strPercent = getString(R.string.percent_correct_answer).format(quizViewModel.percentCorrectAnswer())
-//            Toast.makeText(this, strPercent, Toast.LENGTH_SHORT).show()
-//        } else {
-//            Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show()
-//        }
-
-        val messageResId = when {
-            quizViewModel.isCheater -> R.string.judgment_toast
-            userAnswer == correctAnswer -> R.string.correct_toast
-            else -> R.string.incorrect_toast
+        quizViewModel.userAnswer = if (userAnswer == correctAnswer) {
+            Answer.CORRECT
+        } else {
+            Answer.INCORRECT
         }
 
-        Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show()
+        val message = when {
+            quizViewModel.questionsIsOver() ->
+                getString(R.string.percent_correct_answer).format(quizViewModel.percentCorrectAnswer())
+            quizViewModel.isCheater ->  getString(R.string.judgment_toast)
+            quizViewModel.userAnswer == Answer.CORRECT -> getString(R.string.correct_toast)
+            else -> getString(R.string.incorrect_toast)
+        }
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
 

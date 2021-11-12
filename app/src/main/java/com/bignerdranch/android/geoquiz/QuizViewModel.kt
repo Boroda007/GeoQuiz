@@ -17,7 +17,6 @@ class QuizViewModel : ViewModel() {
 //    }
 
     var currentIndex = 0
-    var isCheater = false
     private var answerCount = 0
 
     private val questionBank = listOf(
@@ -30,6 +29,7 @@ class QuizViewModel : ViewModel() {
     )
 
     private val answerBank = Array(questionBank.size) { Answer.UNKNOWN }
+    private val cheaterBank = Array(questionBank.size) { false }
 
     val currentQuestionAnswer: Boolean
         get() = questionBank[currentIndex].answer
@@ -37,12 +37,20 @@ class QuizViewModel : ViewModel() {
     val currentQuestionText: Int
         get() = questionBank[currentIndex].textResId
 
-    var answerToCurrentQuestion: Answer
+    var userAnswer: Answer
         get() = answerBank[currentIndex]
         set(value) {
             if (answerBank[currentIndex] == Answer.UNKNOWN) {
                 answerBank[currentIndex] = value
                 answerCount++
+            }
+        }
+
+    var isCheater: Boolean
+        get() = cheaterBank[currentIndex]
+        set(value) {
+            if (!cheaterBank[currentIndex]) {
+                cheaterBank[currentIndex] = value
             }
         }
 
