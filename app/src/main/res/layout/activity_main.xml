@@ -40,6 +40,12 @@
         android:layout_marginTop="24dp"
         android:text="@string/cheat_button" />
 
+    <TextView
+        android:id="@+id/hints_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Number of hints: 3" />
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

@@ -4,6 +4,7 @@ package com.bignerdranch.android.geoquiz
 import androidx.lifecycle.ViewModel
 
 private const val TAG = "QuizViewModel"
+private const val MAX_NUM_HINTS = 3
 
 class QuizViewModel : ViewModel() {
 
@@ -18,6 +19,7 @@ class QuizViewModel : ViewModel() {
 
     var currentIndex = 0
     private var answerCount = 0
+    private var cheatCount = 0
 
     private val questionBank = listOf(
         Question(R.string.question_australia, true),
@@ -37,6 +39,9 @@ class QuizViewModel : ViewModel() {
     val currentQuestionText: Int
         get() = questionBank[currentIndex].textResId
 
+    val hintsCount: Int
+        get() = MAX_NUM_HINTS - cheatCount
+
     var userAnswer: Answer
         get() = answerBank[currentIndex]
         set(value) {
@@ -51,6 +56,7 @@ class QuizViewModel : ViewModel() {
         set(value) {
             if (!cheaterBank[currentIndex]) {
                 cheaterBank[currentIndex] = value
+                cheatCount++
             }
         }
 

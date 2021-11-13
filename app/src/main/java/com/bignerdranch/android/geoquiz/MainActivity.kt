@@ -1,7 +1,6 @@
 package com.bignerdranch.android.geoquiz
 
 import android.app.Activity
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -11,6 +10,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult
+import androidx.core.app.ActivityOptionsCompat
 import androidx.lifecycle.ViewModelProvider
 
 private const val TAG = "MainActivity"
@@ -24,6 +24,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var nextButton: ImageButton
     private lateinit var cheatButton: Button
     private lateinit var questionTextView: TextView
+    private lateinit var hintsTextView: TextView
 
     val quizViewModel: QuizViewModel by lazy {
         ViewModelProvider(this).get(QuizViewModel::class.java)
@@ -43,6 +44,7 @@ class MainActivity : AppCompatActivity() {
         nextButton = findViewById(R.id.next_button)
         cheatButton = findViewById(R.id.cheat_button)
         questionTextView = findViewById(R.id.question_text_view)
+        hintsTextView = findViewById(R.id.hints_text_view)
 
         trueButton.setOnClickListener {
             checkAnswer(true)
@@ -63,11 +65,12 @@ class MainActivity : AppCompatActivity() {
         nextButton.setOnClickListener(nextQuestion)
         questionTextView.setOnClickListener(nextQuestion)
 
-        cheatButton.setOnClickListener {
+        cheatButton.setOnClickListener { view ->
             // Начало CheatActivity
             val answerIsTrue = quizViewModel.currentQuestionAnswer
             val intent = CheatActivity.newIntent(this@MainActivity, answerIsTrue)
-            cheatActivityResultLauncher.launch(intent)
+            val option = ActivityOptionsCompat.makeClipRevealAnimation(view, 0, 0, view.width, view.height)
+            cheatActivityResultLauncher.launch(intent, option)
         }
 
         prevButton.setOnClickListener {
@@ -77,12 +80,18 @@ class MainActivity : AppCompatActivity() {
         }
 
         updateQuestion()
+        updateHints()
         updateButtons()
     }
 
     private val cheatActivityResultLauncher = registerForActivityResult(StartActivityForResult()) {
         if (it.resultCode == Activity.RESULT_OK) {
-            quizViewModel.isCheater = it.data?.getBooleanExtra(EXTRA_ANSWER_SHOWN, false) ?: false
+            val isCheater = it.data?.getBooleanExtra(EXTRA_ANSWER_SHOWN, false) ?: false
+            if (isCheater) {
+                quizViewModel.isCheater = true
+                updateHints()
+                updateButtons()
+            }
         }
     }
 
@@ -122,11 +131,15 @@ class MainActivity : AppCompatActivity() {
         questionTextView.setText(questionTextResId)
     }
 
+    private fun updateHints() {
+        hintsTextView.text = getString(R.string.number_of_hints).format(quizViewModel.hintsCount)
+    }
+
     private fun updateButtons() {
         val result = (quizViewModel.userAnswer == Answer.UNKNOWN)
         trueButton.isEnabled = result
         falseButton.isEnabled = result
-        cheatButton.isEnabled = result
+        cheatButton.isEnabled = result && (quizViewModel.hintsCount > 0)
     }
 
     private fun checkAnswer(userAnswer: Boolean) {
